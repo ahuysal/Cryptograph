@@ -1,5 +1,5 @@
 #Set wd
-#setwd("C:\\Users\\hilmiuysal\\Desktop\\NYC Data Science Academy\\Projects\\Shiny\\Cryptograph\\Code")
+#setwd("C:\\Users\\hilmiuysal\\Desktop\\NYC Data Science Academy\\Projects\\Shiny\\Cryptograph")
 
 #Load necessary libraries
 library(shiny)

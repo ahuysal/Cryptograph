@@ -144,8 +144,8 @@ shinyServer(function(input, output, session) {
       theme(plot.margin = margin(2, 1, 1, 1, "cm"),
             axis.text.y = element_blank(), 
             axis.ticks.y = element_blank(), 
-            plot.title = element_text(size = 20, face = "bold", hjust = 0.5)) +
-      ggtitle("Country Bitcoin Popularity Index Distribution by Continent")
+            plot.title = element_text(size = 20, face = "bold", hjust = 0.2)) +
+      ggtitle("Bitcoin Popularity Index Distribution by Continent")
     })
     
     #Tab2 - Bitcoin Accepting Venues Map Ends
@@ -168,8 +168,10 @@ shinyServer(function(input, output, session) {
     #Calculate end price given end date
     end_price = all_coins %>% filter(name == input$coin & date == input$dates[2]) %>% pull(close)
 
-    perc = prettyNum(round(end_price/start_price*100), big.mark = ",")
-    you_get = prettyNum(round((input$money*as.numeric(perc))/100), big.mark = ",")
+    perc_num = round(end_price/start_price*100)
+    perc = prettyNum(perc_num, big.mark = ",")
+    you_get_num = round((input$money*perc_num)/100)
+    you_get = prettyNum(you_get_num, big.mark = ",")
     days_passed = prettyNum(as.integer(input$dates[2]-input$dates[1]), big.mark = ",")
     
     #Valuebox - Percentage
@@ -228,7 +230,7 @@ shinyServer(function(input, output, session) {
     }
     
     #Plot volatility histogram
-    output$barplot_vol = renderPlot({
+    output$barplot_vol = renderPlotly({
       ggplot(df_daily_vol %>% 
                filter(coin %in% input$checkGroup_Coins & ym %in% input$checkGroup_YM)) +
         geom_col(aes(x=ym, y=daily_vol, fill=coin), position = 'dodge') +

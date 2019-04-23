@@ -5,9 +5,9 @@ account: alihilmiuysal
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 883392
-bundleId: 2031544
+bundleId: 2033350
 url: https://alihilmiuysal.shinyapps.io/Cryptograph/
-when: 1555992431.90151
+when: 1556042078.33652
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .RData|REST_API_Venue_List.R|SQLite.R|volatility.R

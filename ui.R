@@ -241,7 +241,7 @@ shinyUI(
                 
                 br(),
                 
-                box(plotOutput("barplot_vol"), width = 12),
+                box(plotlyOutput("barplot_vol"), width = 12),
                 
                 br(),
                 
