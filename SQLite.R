@@ -43,3 +43,14 @@ dbDisconnect(conn)
 #Write to tables ends
 
 
+#SQLite DB and table definitions
+
+
+#SQLite DB name
+dbname = "../data/cryptograph.sqlite"
+
+#SQLite venues table name
+tbl_venues = "venues"
+
+#SQLite coins table name
+tbl_coins = "coins"

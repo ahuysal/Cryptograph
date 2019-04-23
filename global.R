@@ -1,5 +1,5 @@
 #Set wd
-setwd("C:/Users/hilmiuysal/Desktop/NYC Data Science Academy/Projects/Shiny/Cryptograph/data")
+#setwd("C:\\Users\\hilmiuysal\\Desktop\\NYC Data Science Academy\\Projects\\Shiny\\Cryptograph\\Code")
 
 #Load necessary libraries
 library(shiny)
@@ -11,14 +11,14 @@ library(googleVis)
 library(leaflet)
 library(RSQLite)
 library(data.table)
-source("../Code/helpers.R")
+source("./helpers.R")
 library(sp)
 library(plotly)
 library(plyr)
 
 
 #Load coin market data
-all_coins = read.csv(file = 'crypto-markets.csv', header = T, sep = ',', stringsAsFactors = F)
+all_coins = read.csv(file = './data/crypto-markets.csv', header = T, sep = ',', stringsAsFactors = F)
 all_coins = all_coins %>% filter(ranknow %in% 1:100) %>% mutate(slug = as.factor(slug), symbol = as.factor(symbol), name = as.factor(name), date = as.Date(date))
 
 #log(0) == -Inf. Handle it! and round to 3 decimals
@@ -43,7 +43,7 @@ attrs = colnames(all_coins)[c(-1:-5)][-7][-7]
 #Tab3 - Map
 
 #Load BTC accepting venues, tidy category field
-df_venues = read.csv(file = 'list_of_venues.csv', header = T, sep = ',', stringsAsFactors = F)
+df_venues = read.csv(file = './data/list_of_venues.csv', header = T, sep = ',', stringsAsFactors = F)
 df_venues = df_venues %>% mutate(category = toupper(category))
 df_venues = df_venues %>% filter(!(category %in% c('DRUG STORE','EDUCATIONAL BUSINESS','TRAVEL AGENCY')))
 df_venues$category = ifelse(df_venues$category == 'TREZOR RETAILER', 'SHOPPING', df_venues$category)
@@ -96,20 +96,10 @@ df_venues_combo_chart$category = ifelse(df_venues_combo_chart$category %in% c('L
 df_venues_combo_chart = as.data.frame(df_venues_combo_chart %>% dplyr::group_by(YEAR, category) %>% dplyr::summarise(CNT=n()))
 df_venues_combo_chart = df_venues_combo_chart %>% spread(key = category, value = CNT, fill = 0)
 
-#SQLite DB name
-dbname = "./cryptograph.sqlite"
-
-#SQLite venues table name
-tbl_venues = "venues"
-
-#SQLite coins table name
-tbl_coins = "coins"
-
-
 #Popularity by country begins#
 
 #Read bitcoin popularity by country data
-pop_btc = read.csv(file = 'bitcoin_interest_by_country_5_years.csv', header = T, sep = ',', stringsAsFactors = F)
+pop_btc = read.csv(file = './data/bitcoin_interest_by_country_5_years.csv', header = T, sep = ',', stringsAsFactors = F)
 #Google geochart does not allow null values. Eliminate nulls!
 pop_btc = pop_btc %>% filter(!is.na(Popularity))
 #Group popularity index to visualize by continent
@@ -128,7 +118,7 @@ pop_btc = pop_btc %>% mutate(PopGroup = (if_else(
 )))
 
 #Read country-continent mapping table
-continent = read.csv(file = 'countryContinent.csv', header = T, sep = ',', stringsAsFactors = F)
+continent = read.csv(file = './data/countryContinent.csv', header = T, sep = ',', stringsAsFactors = F)
 continent = continent %>% mutate(Country = country)
 
 #Add Continent to the popularity data to visualize in the faceted piechart 
@@ -152,7 +142,7 @@ pop_btc_top20$Popularity.style = c('red','blue','gold','yellow', 'green', 'navy'
 #Tab-4 Volatility Begins
 
 #Read volatility file
-df_daily_vol = read.csv(file = './daily_volatility.csv', header = T, sep = ',', stringsAsFactors = T)
+df_daily_vol = read.csv(file = './data/daily_volatility.csv', header = T, sep = ',', stringsAsFactors = T)
 df_daily_vol = df_daily_vol %>% mutate(ym = as.character(ym))
 
 #Tab-4 Volatility, year/month checkbox group input
@@ -189,4 +179,57 @@ df_bubble = market_bubble %>%
             inner_join(vol_bubble, by = c('name','yearmonth'))
 
 #Bubble Chart Ends
+
+
+
+
+
+
+
+############
+###SQLite###
+############
+
+all_coins_sqlite = all_coins %>% mutate(date = as.character(date))
+
+#SQLite DB name
+dbname = "./data/cryptograph.sqlite"
+
+#SQLite venues table name
+tbl_venues = "venues"
+
+#SQLite coins table name
+tbl_coins = "coins"
+
+#connect to database
+conn <- dbConnect(drv = SQLite(), 
+                  dbname = dbname)
+
+#Drop table
+dbRemoveTable(conn, tbl_venues)
+dbRemoveTable(conn, tbl_coins)
+
+######################
+#Write to tables ends#
+######################
+
+#write table
+dbWriteTable(conn = conn,
+             name = tbl_venues,
+             value = df_venues)
+
+#write table
+dbWriteTable(conn = conn,
+             name = tbl_coins,
+             value = all_coins_sqlite)
+
+#List tables
+dbListTables(conn)
+
+#Disconnect from DB
+dbDisconnect(conn)
+
+######################
+#Write to tables ends#
+######################
 

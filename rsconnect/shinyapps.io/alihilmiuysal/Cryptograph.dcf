@@ -1,0 +1,13 @@
+name: Cryptograph
+title: Cryptograph
+username:
+account: alihilmiuysal
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 883392
+bundleId: 2031528
+url: https://alihilmiuysal.shinyapps.io/Cryptograph/
+when: 1555991724.68053
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|REST_API_Venue_List.R|SQLite.R|volatility.R
