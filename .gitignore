@@ -6,7 +6,8 @@
 ./data/list_of_venues.csv
 
 
-./data/*
+./data/*.xlsx
+./data/*.csv
 
 
 # Compiled source #
