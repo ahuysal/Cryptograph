@@ -1,8 +1,3 @@
-library(tidyverse)
-library(dplyr)
-
-setwd("C:/Users/hilmiuysal/Desktop/NYC Data Science Academy/Projects/Shiny/Cryptograph/Code")
-
 #Volatility calculation
 
 #Create yearmonth variable
@@ -46,9 +41,6 @@ monthly_factor = sqrt(30)
 
 #
 df_daily_vol = df_daily_vol %>% mutate(annualized_vol = round(daily_vol*annualization_factor, 3), monthly_vol = round(daily_vol*monthly_factor, 3))
-
-#Write to CSV
-write.csv(x = df_daily_vol, file = '../data/daily_volatility.csv', row.names = FALSE)
 
 
 

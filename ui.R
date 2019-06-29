@@ -10,6 +10,7 @@
 
 shinyUI(
   dashboardPage(
+    
     skin = "yellow",
     
     dashboardHeader(title = "Cryptograph", titleWidth = 250),
@@ -17,7 +18,8 @@ shinyUI(
     dashboardSidebar(width = 250,
     
       sidebarUserPanel("Ali Uysal", "NYC Data Science Academy",
-                       image = "https://yt3.ggpht.com/-04uuTMHfDz4/AAAAAAAAAAI/AAAAAAAAAAA/Kjeupp-eNNg/s100-c-k-no-rj-c0xffffff/photo.jpg"),
+                       image = "https://yt3.ggpht.com/-04uuTMHfDz4/AAAAAAAAAAI/AAAAAAAAAAA/Kjeupp-eNNg/s100-c-k-no-rj-c0xffffff/photo.jpg"
+                       ),
     
       sidebarMenu(
         menuItem("About", tabName = "about", icon = icon("info-circle")),
@@ -84,7 +86,7 @@ shinyUI(
                   )
         ),
         
-        #Tab1 - Show data
+        # Tab1 - Show data
         tabItem(tabName = "data",
                 fluidRow(
                   box(selectizeInput("name",
@@ -115,7 +117,7 @@ shinyUI(
                 )
         ),
       
-      #Tab2 - Map of Bitcoin Accepting Venues
+      # Tab2 - Map of Bitcoin Accepting Venues
       tabItem(tabName = "stores",
               
               h3("Stores That Accept Bitcoin Payments"), #title of the leaflet map
@@ -144,7 +146,7 @@ shinyUI(
               )
       ),
               
-      #Tab3 - Bitcoin Popularity by Country
+      # Tab3 - Bitcoin Popularity by Country
       tabItem(tabName = "popularity",
 
               h3("Bitcoin Popularity Index by Country"), #title of the gvisGeoChart popularity map
@@ -172,7 +174,7 @@ shinyUI(
               )
       ),
               
-      #Tab4 - Profit/Loss?
+      # Tab4 - Profit/Loss?
       tabItem(tabName = "profit_loss",
               fluidPage(
                 
@@ -208,13 +210,11 @@ shinyUI(
                 fluidRow(valueBoxOutput("perc"),
                          valueBoxOutput("youget"),
                          valueBoxOutput("dayspassed"))
-              
-              
-                
+       
                 )
               ),
       
-      #Tab5 - Volatility
+      # Tab5 - Volatility
       tabItem(tabName = "volatility",
               fluidPage(
                 
@@ -235,7 +235,6 @@ shinyUI(
                   "checkGroup_YM",
                   label = h4("Select Month"),
                   choices = unique_ym,
-                  #selected = c('201806','201807','201808','201809','201810','201811'),
                   inline = TRUE
                 ),
                 
@@ -257,8 +256,8 @@ shinyUI(
                 br(),
                 
                 box(plotlyOutput("bubble_vol"), width = 12)
-              ))
-  )
-  )
-)
-)
+              )) # Tab-5 ends
+  ) # tabItems ends
+  ) # dashboardBody ends
+) # dashboardPage
+) # shinyUI ends

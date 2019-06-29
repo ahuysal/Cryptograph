@@ -1,7 +1,5 @@
-#Set wd
-#setwd("C:\\Users\\hilmiuysal\\Desktop\\NYC Data Science Academy\\Projects\\Shiny\\Cryptograph")
-
-#Load necessary libraries
+#Load libraries and helper file
+source("./helpers.R")
 library(shiny)
 library(tidyverse)
 library(dplyr)
@@ -11,38 +9,38 @@ library(googleVis)
 library(leaflet)
 library(RSQLite)
 library(data.table)
-source("./helpers.R")
 library(sp)
 library(plotly)
 library(plyr)
 
-
-#Load coin market data
+# Read in coin market CSV file
 all_coins = read.csv(file = './data/crypto-markets.csv', header = T, sep = ',', stringsAsFactors = F)
+
+# Take top 100 coins according to market capitalization
 all_coins = all_coins %>% filter(ranknow %in% 1:100) %>% mutate(slug = as.factor(slug), symbol = as.factor(symbol), name = as.factor(name), date = as.Date(date))
 
-#log(0) == -Inf. Handle it! and round to 3 decimals
+# log(0) == -Inf. Handle it! and round to 3 decimals
 all_coins = all_coins %>% mutate(ln_open = round(if_else(is.infinite(log(open)), 0, log(open)), 3), ln_high = round(if_else(is.infinite(log(high)), 0, log(high)), 3), 
                                  ln_low = round(if_else(is.infinite(log(low)), 0, log(low)), 3), ln_close = round(if_else(is.infinite(log(close)), 0, log(close)), 3), 
                                  ln_volume = round(if_else(is.infinite(log(volume)), 0, log(volume)), 3),
                                  ln_market = round(if_else(is.infinite(log(market)), 0, log(market)), 3)
                                  )
 
-#Calculate min. available date and corresponding price for each coin 
+# Calculate min. available date and corresponding price for each coin 
 min_dates = data.frame(all_coins %>% group_by(name) %>% slice(which.min(date)))
 min_date_coins = min_dates %>% inner_join(all_coins, by = c('name','date')) %>% select(name, date, close = close.x)
 
-#List of coins
+# List of coins
 names = levels(all_coins$name)
 
-#List of attributes of coins
-#coin names, spread and close_ratio out
+# List of attributes of coins
+# coin names, spread and close_ratio out
 attrs = colnames(all_coins)[c(-1:-5)][-7][-7]
 
 
-#Tab3 - Map
+# Tab3 - Map
 
-#Load BTC accepting venues, tidy category field
+# Load BTC accepting venues, tidy category field
 df_venues = read.csv(file = './data/list_of_venues.csv', header = T, sep = ',', stringsAsFactors = F)
 df_venues = df_venues %>% mutate(category = toupper(category))
 df_venues = df_venues %>% filter(!(category %in% c('DRUG STORE','EDUCATIONAL BUSINESS','TRAVEL AGENCY')))
@@ -51,7 +49,7 @@ df_venues = df_venues %>% mutate(category = as.factor(category))
 df_venues = df_venues %>% mutate(YM = as.character(format(as.Date(createDate), '%Y%m')))
 
 
-#Marker colors for Bitcoin accepting venues leaflet map
+# Marker colors for Bitcoin accepting venues leaflet map
 venue_categories = levels(df_venues$category)
 markerColors = sapply(df_venues$category, function(category) {
   if(category == venue_categories[1]) {
@@ -80,15 +78,15 @@ markerColors = sapply(df_venues$category, function(category) {
   
 })
 
-#Create a df for the donut chart in Tab-2
+# Create a data frame For "Type of Stores" Donut Chart - (Stores Tab)
 df_venues_cat_count = as.data.frame(df_venues %>% dplyr::group_by(category) %>% dplyr::summarise(CNT=n()))
 
-
+# Do I need them?
 df_venues_cnt_by_date = as.data.frame(df_venues %>% dplyr::group_by(YM) %>% dplyr::summarise(CNT=n()))
 df_venues_cnt_by_date = df_venues_cnt_by_date %>% mutate(date = as.Date(paste0(YM,'01'), '%Y%m%d'))
 
 
-#Tab2 Combo Chart Venue Category by YearMonth
+# Create a data frame For "Store Types by Year" Donut Chart - (Stores Tab)
 df_venues_combo_chart = df_venues %>% filter(!(category %in% c('DEFAULT'))) %>% mutate(category = as.character(category), YEAR = year(as.Date(createDate)))
 df_venues_combo_chart$category = ifelse(df_venues_combo_chart$category %in% c('CAFE','GROCERY'), 'FOOD', df_venues_combo_chart$category)
 df_venues_combo_chart$category = ifelse(df_venues_combo_chart$category == 'NIGHTLIFE', 'ATTRACTION', df_venues_combo_chart$category)
@@ -96,13 +94,16 @@ df_venues_combo_chart$category = ifelse(df_venues_combo_chart$category %in% c('L
 df_venues_combo_chart = as.data.frame(df_venues_combo_chart %>% dplyr::group_by(YEAR, category) %>% dplyr::summarise(CNT=n()))
 df_venues_combo_chart = df_venues_combo_chart %>% spread(key = category, value = CNT, fill = 0)
 
-#Popularity by country begins#
 
-#Read bitcoin popularity by country data
+#Popularity by country#
+
+# Read in bitcoin popularity by country CSV file
 pop_btc = read.csv(file = './data/bitcoin_interest_by_country_5_years.csv', header = T, sep = ',', stringsAsFactors = F)
-#Google geochart does not allow null values. Eliminate nulls!
+
+# Google geochart does not allow null values. Eliminate nulls!
 pop_btc = pop_btc %>% filter(!is.na(Popularity))
-#Group popularity index to visualize by continent
+
+# Group popularity index to visualize by continent
 pop_btc = pop_btc %>% mutate(PopGroup = (if_else(
   Popularity <= 10,
   '0-10',
@@ -117,11 +118,11 @@ pop_btc = pop_btc %>% mutate(PopGroup = (if_else(
   )
 )))
 
-#Read country-continent mapping table
+# Read in country-continent mapping CSV
 continent = read.csv(file = './data/countryContinent.csv', header = T, sep = ',', stringsAsFactors = F)
 continent = continent %>% mutate(Country = country)
 
-#Add Continent to the popularity data to visualize in the faceted piechart 
+# Add Continent to the popularity data to visualize in the faceted piechart 
 pop_btc=pop_btc %>% inner_join(continent, by = 'Country') %>% select(Country, continent, Popularity, PopGroup)
 pop_btc_group = as.data.frame(pop_btc %>% dplyr::group_by(continent, PopGroup) %>% dplyr::summarise(tot=n()))
 pop_btc_group = pop_btc_group %>% arrange(continent, PopGroup)
@@ -132,27 +133,27 @@ pop_btc_group_continent_ratio = pop_btc_group_continent %>% mutate(ratio = round
 pop_btc_group_continent_ratio = pop_btc_group_continent_ratio %>% mutate(ratio = if_else(continent == 'Africa' & PopGroup == '0-10', 0.34, ratio))
 
 
-#Add color to the top20 countries for gvisBarChart
+# Add color to the top20 countries for gvisBarChart
 pop_btc_top20 = pop_btc %>% head(20)
 pop_btc_top20$Popularity.style = c('red','blue','gold','yellow', 'green', 'navy', 'teal', 'olive', 'lime', 'orange', 'fuchsia', 'purple', 'maroon', 'black', 'light-blue', 'green', 'orange', 'red', 'olive', 'black')
 
 #Popularity by country ends#
 
 
-#Tab-4 Volatility Begins
+# Tab-4 Volatility Begins
 
-#Read volatility file
+# Read in volatility CSV file
 df_daily_vol = read.csv(file = './data/daily_volatility.csv', header = T, sep = ',', stringsAsFactors = T)
 df_daily_vol = df_daily_vol %>% mutate(ym = as.character(ym))
 
-#Tab-4 Volatility, year/month checkbox group input
+# year/month checkbox group input
 unique_ym = unlist(df_daily_vol %>% select(ym) %>% distinct())
 names(unique_ym) = NULL
 
-#Init list to keep updated list of ym wrt selected coins - Tab-4 Volatility
+# Initialize a list to keep updated list of ym wrt selected coins
 L=list()
 
-#Get volatility types to use in hist as y-axis
+# Get volatility types to use in histogram as y-axis
 vol_types = colnames(df_daily_vol)[c(-1,-2)]
 
 #Tab-4 Volatility Ends
@@ -161,15 +162,16 @@ vol_types = colnames(df_daily_vol)[c(-1,-2)]
 
 #Bubble Chart Begins
 
+# Create a data frame with only the necessary columns
 vol_bubble = df_daily_vol %>% 
                 transmute(name = coin, yearmonth = as.integer(ym), 
                           daily_vol, annualized_vol, monthly_vol)
 
-#Add yearmonth as int to join with vol_bubble and plot bubble chart
+# Add yearmonth to join with vol_bubble and plot bubble chart
 all_coins = all_coins %>% 
               mutate(yearmonth = as.integer(format(as.Date(all_coins$date), '%Y%m')))
 
-#Top 20 coins market cap. by yearmonth
+# Top 20 coins market cap. by yearmonth
 market_bubble = data.frame(all_coins %>% 
                              filter(ranknow %in% 1:21 & yearmonth >= 201710 & name != 'Bitcoin SV') %>%
                              dplyr::group_by(name, yearmonth) %>%
@@ -179,10 +181,6 @@ df_bubble = market_bubble %>%
             inner_join(vol_bubble, by = c('name','yearmonth'))
 
 #Bubble Chart Ends
-
-
-
-
 
 
 
