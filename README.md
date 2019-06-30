@@ -4,10 +4,10 @@ Cryptograph is an R Shiny dashboard which visualizes over 2000 cryptocurrencies 
 
 ## Installation
 
-	- Download the repository to a folder on your local computer.
-	- Open one of the files global.R, UI.R or server.R on R Studio.
-	- Click on the "Run App" button on the upper right corner of the File Browser pane.
-	- Or you may issue the command "runApp()" on the terminal console.
+1. Download the repository to a folder on your local computer.
+2. Open one of the files global.R, UI.R or server.R on R Studio.
+3. Click on the "Run App" button on the upper right corner of the File Browser pane.
+4. Or you may issue the command `runApp()` on the terminal console.
 
 ```python
 runApp()
